@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_object_or_404, redirect
+﻿from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.views.decorators.http import require_POST
@@ -9,7 +9,13 @@ from apps.products.models import Product, ProductVariant
 
 def cart_detail(request):
     cart = _get_cart(request)
-    return render(request, 'orders/cart.html', {'cart': cart})
+    cart_items = cart.items.select_related('product', 'variant').prefetch_related('product__images', 'product__store') if cart else []
+    cart_total = cart.total if cart else 0
+    return render(request, 'orders/cart.html', {
+        'cart': cart,
+        'cart_items': cart_items,
+        'cart_total': cart_total,
+    })
 
 
 @require_POST
@@ -128,3 +134,4 @@ def _get_cart(request):
             request.session.create()
         cart, _ = Cart.objects.get_or_create(session_key=request.session.session_key, user=None)
     return cart
+

@@ -1,0 +1,89 @@
+﻿{% extends "superadmin/base_admin.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block nav_dashboard %}active{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<!-- Stat Cards -->
+<div class="row g-3 mb-4">
+  <div class="col-md-3">
+    <div class="stat-card">
+      <p class="text-muted small mb-1">Total Users</p>
+      <h3 class="fw-bold mb-0">{{ total_users }}</h3>
+      <i class="bi bi-people text-primary" style="font-size:1.5rem;"></i>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="stat-card">
+      <p class="text-muted small mb-1">Total Vendors</p>
+      <h3 class="fw-bold mb-0">{{ total_vendors }}</h3>
+      <i class="bi bi-shop text-success" style="font-size:1.5rem;"></i>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="stat-card">
+      <p class="text-muted small mb-1">Total Products</p>
+      <h3 class="fw-bold mb-0">{{ total_products }}</h3>
+      <i class="bi bi-box-seam text-warning" style="font-size:1.5rem;"></i>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="stat-card">
+      <p class="text-muted small mb-1">Total Orders</p>
+      <h3 class="fw-bold mb-0">{{ total_orders }}</h3>
+      <i class="bi bi-receipt text-danger" style="font-size:1.5rem;"></i>
+    </div>
+  </div>
+</div>
+
+{% if pending_applications %}
+<div class="alert alert-warning">
+  ⚠️ <strong>{{ pending_applications }}</strong> pending vendor application{{ pending_applications|pluralize }}.
+  <a href="{% url 'vendors:superadmin_applications' %}" class="alert-link">Review now →</a>
+</div>
+{% endif %}
+
+<div class="row g-4">
+  <!-- Recent Orders -->
+  <div class="col-md-7">
+    <div class="stat-card">
+      <h6 class="fw-bold mb-3">📋 Recent Orders</h6>
+      <table class="table table-sm table-hover">
+        <thead class="table-light"><tr><th>Order #</th><th>Buyer</th><th>Total</th><th>Status</th></tr></thead>
+        <tbody>
+          {% for order in recent_orders %}
+          <tr>
+            <td class="small">{{ order.order_number }}</td>
+            <td class="small">{{ order.buyer.email }}</td>
+            <td class="small">₱{{ order.total }}</td>
+            <td><span class="badge bg-{% if order.status == 'delivered' %}success{% elif order.status == 'cancelled' %}danger{% else %}warning text-dark{% endif %}">{{ order.status }}</span></td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="4" class="text-muted text-center">No orders yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <!-- Recent Users -->
+  <div class="col-md-5">
+    <div class="stat-card">
+      <h6 class="fw-bold mb-3">👥 Recent Users</h6>
+      {% for user in recent_users %}
+      <div class="d-flex align-items-center mb-2">
+        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-2" style="width:32px;height:32px;font-size:.8rem;">
+          {{ user.username|first|upper }}
+        </div>
+        <div>
+          <p class="mb-0 small fw-semibold">{{ user.username }}</p>
+          <p class="mb-0 text-muted" style="font-size:.75rem;">{{ user.email }}</p>
+        </div>
+        <span class="badge ms-auto bg-{% if user.role == 'vendor' %}success{% else %}info{% endif %}">{{ user.role }}</span>
+      </div>
+      {% empty %}
+      <p class="text-muted small">No users yet.</p>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

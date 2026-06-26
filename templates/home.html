@@ -1,0 +1,110 @@
+﻿{% extends "base.html" %}
+{% block title %}Home - Marketplace{% endblock %}
+
+{% block content %}
+
+<!-- HERO -->
+<section class="py-5" style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 60%, #3b82f6 100%);">
+  <div class="container py-4">
+    <div class="row align-items-center">
+      <div class="col-lg-6 text-white">
+        <h1 class="display-4 fw-bold mb-3">Shop Local.<br>Support Students.</h1>
+        <p class="lead mb-4 opacity-75">Discover unique products from student entrepreneurs and small businesses near you.</p>
+        <div class="d-flex gap-3">
+          <a href="{% url 'products:list' %}" class="btn btn-warning btn-lg fw-semibold">Browse Products</a>
+          <a href="{% url 'vendors:apply' %}" class="btn btn-outline-light btn-lg">Sell with Us</a>
+        </div>
+      </div>
+      <div class="col-lg-6 text-center d-none d-lg-block">
+        <div style="font-size: 8rem;">🛍️</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TOP CATEGORIES -->
+{% if top_categories %}
+<section class="py-5">
+  <div class="container">
+    <h2 class="fw-bold mb-4">Shop by Category</h2>
+    <div class="row g-3">
+      {% for cat in top_categories %}
+      <div class="col-6 col-md-3">
+        <a href="{% url 'products:list' %}?category={{ cat.slug }}" class="text-decoration-none">
+          <div class="card border-0 shadow-sm text-center py-4 h-100" style="transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform=''">
+            {% if cat.icon %}
+              <div style="font-size: 2rem;"><i class="bi bi-{{ cat.icon }}"></i></div>
+            {% else %}
+              <div style="font-size: 2rem;">🏷️</div>
+            {% endif %}
+            <div class="mt-2 fw-semibold text-dark">{{ cat.name }}</div>
+          </div>
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- FEATURED PRODUCTS -->
+{% if featured_products %}
+<section class="py-5 bg-white">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 class="fw-bold mb-0">Featured Products</h2>
+      <a href="{% url 'products:list' %}" class="btn btn-outline-primary btn-sm">View All</a>
+    </div>
+    <div class="row g-4">
+      {% for product in featured_products %}
+      {% include "products/_card.html" %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- NEW ARRIVALS -->
+{% if new_arrivals %}
+<section class="py-5">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 class="fw-bold mb-0">New Arrivals</h2>
+      <a href="{% url 'products:list' %}?sort=newest" class="btn btn-outline-primary btn-sm">View All</a>
+    </div>
+    <div class="row g-4">
+      {% for product in new_arrivals %}
+      {% include "products/_card.html" %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- BEST SELLERS -->
+{% if best_sellers %}
+<section class="py-5 bg-white">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 class="fw-bold mb-0">Best Sellers</h2>
+      <a href="{% url 'products:list' %}?sort=popular" class="btn btn-outline-primary btn-sm">View All</a>
+    </div>
+    <div class="row g-4">
+      {% for product in best_sellers %}
+      {% include "products/_card.html" %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- CTA BANNER -->
+<section class="py-5" style="background: #0f172a;">
+  <div class="container text-center text-white py-3">
+    <h2 class="fw-bold mb-3">Start Selling Today</h2>
+    <p class="lead opacity-75 mb-4">Join hundreds of student vendors and small businesses on our platform.</p>
+    <a href="{% url 'vendors:apply' %}" class="btn btn-warning btn-lg fw-semibold">Apply as Vendor</a>
+  </div>
+</section>
+
+{% endblock %}

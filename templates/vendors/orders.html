@@ -1,0 +1,108 @@
+﻿{% extends "base.html" %}
+{% block title %}Manage Orders - Marketplace{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold mb-0">Manage Orders</h2>
+    <a href="{% url 'vendors:dashboard' %}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left me-2"></i>Dashboard</a>
+  </div>
+
+  <!-- STATUS FILTER -->
+  <div class="d-flex gap-2 mb-4 flex-wrap">
+    <a href="{% url 'vendors:orders' %}" class="btn btn-sm {% if not status_filter %}btn-primary{% else %}btn-outline-secondary{% endif %}">All</a>
+    <a href="?status=pending" class="btn btn-sm {% if status_filter == 'pending' %}btn-warning{% else %}btn-outline-secondary{% endif %}">Pending</a>
+    <a href="?status=confirmed" class="btn btn-sm {% if status_filter == 'confirmed' %}btn-primary{% else %}btn-outline-secondary{% endif %}">Confirmed</a>
+    <a href="?status=shipped" class="btn btn-sm {% if status_filter == 'shipped' %}btn-info{% else %}btn-outline-secondary{% endif %}">Shipped</a>
+    <a href="?status=delivered" class="btn btn-sm {% if status_filter == 'delivered' %}btn-success{% else %}btn-outline-secondary{% endif %}">Delivered</a>
+    <a href="?status=cancelled" class="btn btn-sm {% if status_filter == 'cancelled' %}btn-danger{% else %}btn-outline-secondary{% endif %}">Cancelled</a>
+  </div>
+
+  {% if sub_orders %}
+  <div class="d-flex flex-column gap-3">
+    {% for sub_order in sub_orders %}
+    <div class="card border-0 shadow-sm p-4">
+      <div class="row align-items-center">
+
+        <!-- Order Info -->
+        <div class="col-md-3">
+          <p class="fw-bold mb-0">{{ sub_order.order.order_number }}</p>
+          <p class="text-muted small mb-0">{{ sub_order.order.buyer.get_full_name|default:sub_order.order.buyer.email }}</p>
+          <p class="text-muted small mb-0">{{ sub_order.order.created_at|date:"M d, Y" }}</p>
+        </div>
+
+        <!-- Items -->
+        <div class="col-md-3">
+          {% for item in sub_order.items.all %}
+          <p class="small mb-0">{{ item.quantity }}x {{ item.product.name }}</p>
+          {% endfor %}
+        </div>
+
+        <!-- Total & Status -->
+        <div class="col-md-2">
+          <p class="fw-bold text-primary mb-1">₱{{ sub_order.subtotal }}</p>
+          <span class="badge
+            {% if sub_order.status == 'delivered' %}bg-success
+            {% elif sub_order.status == 'cancelled' %}bg-danger
+            {% elif sub_order.status == 'shipped' %}bg-info
+            {% elif sub_order.status == 'confirmed' %}bg-primary
+            {% else %}bg-warning text-dark{% endif %}">
+            {{ sub_order.get_status_display }}
+          </span>
+        </div>
+
+        <!-- Shipping Address -->
+        <div class="col-md-2">
+          <p class="small text-muted mb-0">📍 {{ sub_order.order.shipping_address.full_name }}</p>
+          <p class="small text-muted mb-0">{{ sub_order.order.shipping_address.street }}, {{ sub_order.order.shipping_address.city }}</p>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="col-md-2 text-end">
+          {% if sub_order.status == 'pending' %}
+          <form method="post" action="{% url 'vendors:update_order_status' sub_order.pk %}">
+            {% csrf_token %}
+            <input type="hidden" name="status" value="confirmed">
+            <button type="submit" class="btn btn-primary btn-sm w-100 mb-1">✅ Confirm</button>
+          </form>
+          <form method="post" action="{% url 'vendors:update_order_status' sub_order.pk %}">
+            {% csrf_token %}
+            <input type="hidden" name="status" value="cancelled">
+            <button type="submit" class="btn btn-outline-danger btn-sm w-100"
+              onclick="return confirm('Cancel this order?')">❌ Cancel</button>
+          </form>
+
+          {% elif sub_order.status == 'confirmed' %}
+          <form method="post" action="{% url 'vendors:update_order_status' sub_order.pk %}">
+            {% csrf_token %}
+            <input type="hidden" name="status" value="shipped">
+            <button type="submit" class="btn btn-info btn-sm w-100 mb-1">🚚 Mark Shipped</button>
+          </form>
+
+          {% elif sub_order.status == 'shipped' %}
+          <form method="post" action="{% url 'vendors:update_order_status' sub_order.pk %}">
+            {% csrf_token %}
+            <input type="hidden" name="status" value="delivered">
+            <button type="submit" class="btn btn-success btn-sm w-100">📦 Mark Delivered</button>
+          </form>
+
+          {% elif sub_order.status == 'delivered' %}
+          <span class="text-success small fw-semibold">✅ Completed</span>
+
+          {% elif sub_order.status == 'cancelled' %}
+          <span class="text-danger small fw-semibold">❌ Cancelled</span>
+          {% endif %}
+        </div>
+
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="text-center py-5">
+    <div style="font-size:4rem;">📋</div>
+    <h5 class="fw-bold mt-3">No orders found</h5>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

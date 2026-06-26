@@ -1,0 +1,89 @@
+﻿{% extends "base.html" %}
+{% block title %}Checkout - Marketplace{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <h2 class="fw-bold mb-4">💳 Checkout</h2>
+
+  <form method="post" action="{% url 'orders:place_order' %}">
+    {% csrf_token %}
+    <div class="row g-4">
+
+      <!-- SHIPPING ADDRESS -->
+      <div class="col-lg-8">
+        <div class="card border-0 shadow-sm p-4 mb-4">
+          <h5 class="fw-bold mb-4">Shipping Address</h5>
+          {% if addresses %}
+            {% for address in addresses %}
+            <div class="form-check mb-3">
+              <input class="form-check-input" type="radio" name="address_id" id="addr{{ address.pk }}" value="{{ address.pk }}" {% if forloop.first %}checked{% endif %}>
+              <label class="form-check-label ms-2" for="addr{{ address.pk }}">
+                <strong>{{ address.full_name }}</strong> — {{ address.phone }}<br>
+                <span class="text-muted small">{{ address.street }}, {{ address.city }}, {{ address.province }} {{ address.postal_code }}, {{ address.country }}</span>
+              </label>
+            </div>
+            {% endfor %}
+          {% else %}
+            <div class="alert alert-warning">
+              <i class="bi bi-exclamation-triangle me-2"></i>
+              You have no saved addresses. Please <a href="{% url 'users:add_address' %}">add an address</a> first.
+            </div>
+          {% endif %}
+        </div>
+
+        <!-- ORDER ITEMS -->
+        <div class="card border-0 shadow-sm p-4">
+          <h5 class="fw-bold mb-4">Order Items</h5>
+          {% for item in cart.items.all %}
+          <div class="d-flex align-items-center gap-3 mb-3 pb-3 border-bottom">
+            {% with item.product.images.first as img %}
+            {% if img %}
+              <img src="{{ img.image.url }}" class="rounded" style="width:60px;height:60px;object-fit:cover;" alt="{{ item.product.name }}">
+            {% else %}
+              <div class="bg-light rounded d-flex align-items-center justify-content-center" style="width:60px;height:60px;font-size:1.5rem;">📦</div>
+            {% endif %}
+            {% endwith %}
+            <div class="flex-grow-1">
+              <p class="fw-semibold mb-0">{{ item.product.name }}</p>
+              <p class="text-muted small mb-0">{{ item.product.store.name }} × {{ item.quantity }}</p>
+            </div>
+            <span class="fw-bold text-primary">₱{{ item.subtotal }}</span>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- ORDER SUMMARY -->
+      <div class="col-lg-4">
+        <div class="card border-0 shadow-sm p-4 sticky-top" style="top: 80px;">
+          <h5 class="fw-bold mb-4">Order Summary</h5>
+          <div class="d-flex justify-content-between mb-2">
+            <span class="text-muted">Subtotal</span>
+            <span>₱{{ cart.total }}</span>
+          </div>
+          <div class="d-flex justify-content-between mb-2">
+            <span class="text-muted">Shipping</span>
+            <span class="text-success small">Free</span>
+          </div>
+          <hr>
+          <div class="d-flex justify-content-between mb-4">
+            <span class="fw-bold">Total</span>
+            <span class="fw-bold fs-5 text-primary">₱{{ cart.total }}</span>
+          </div>
+          {% if addresses %}
+          <button type="submit" class="btn btn-primary btn-lg w-100">
+            <i class="bi bi-bag-check me-2"></i>Place Order
+          </button>
+          {% else %}
+          <button type="submit" class="btn btn-primary btn-lg w-100" disabled>
+            <i class="bi bi-bag-check me-2"></i>Place Order
+          </button>
+          {% endif %}
+          <a href="{% url 'orders:cart' %}" class="btn btn-outline-secondary w-100 mt-2">Back to Cart</a>
+        </div>
+      </div>
+
+    </div>
+  </form>
+</div>
+{% endblock %}

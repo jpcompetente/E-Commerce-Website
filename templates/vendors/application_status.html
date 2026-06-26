@@ -1,0 +1,33 @@
+﻿{% extends "base.html" %}
+{% block title %}Application Status - Marketplace{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-6 text-center">
+      <div class="card border-0 shadow-sm p-5">
+        {% if application.status == 'pending' %}
+          <div style="font-size:4rem;">⏳</div>
+          <h3 class="fw-bold mt-3">Application Under Review</h3>
+          <p class="text-muted">Your vendor application is being reviewed. We'll notify you once it's approved.</p>
+          <span class="badge bg-warning text-dark fs-6">Pending</span>
+        {% elif application.status == 'approved' %}
+          <div style="font-size:4rem;">🎉</div>
+          <h3 class="fw-bold mt-3">Application Approved!</h3>
+          <p class="text-muted">Congratulations! Your store has been approved. Start selling now!</p>
+          <a href="{% url 'vendors:dashboard' %}" class="btn btn-primary btn-lg mt-2">Go to Dashboard</a>
+        {% elif application.status == 'rejected' %}
+          <div style="font-size:4rem;">❌</div>
+          <h3 class="fw-bold mt-3">Application Rejected</h3>
+          <p class="text-muted">Unfortunately your application was not approved at this time.</p>
+          <span class="badge bg-danger fs-6">Rejected</span>
+        {% endif %}
+        <div class="mt-4 text-muted small">
+          <p class="mb-1"><strong>Store Name:</strong> {{ application.store_name }}</p>
+          <p class="mb-0"><strong>Submitted:</strong> {{ application.created_at|date:"M d, Y" }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

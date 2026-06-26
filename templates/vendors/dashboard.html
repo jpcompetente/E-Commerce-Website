@@ -1,0 +1,133 @@
+﻿{% extends "base.html" %}
+{% block title %}Vendor Dashboard - Marketplace{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+
+  <!-- HEADER -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="fw-bold mb-1">{{ store.name }}</h2>
+      <p class="text-muted mb-0">Vendor Dashboard</p>
+    </div>
+    <a href="{% url 'vendors:products' %}" class="btn btn-primary">
+      <i class="bi bi-plus-lg me-2"></i>Add Product
+    </a>
+  </div>
+
+  <!-- STATS -->
+  <div class="row g-4 mb-4">
+    <div class="col-6 col-md-3">
+      <div class="card border-0 shadow-sm p-4 text-center">
+        <div class="fs-2 fw-bold text-primary">₱{{ total_revenue }}</div>
+        <div class="text-muted small mt-1">Revenue (30 days)</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card border-0 shadow-sm p-4 text-center">
+        <div class="fs-2 fw-bold text-success">{{ total_orders }}</div>
+        <div class="text-muted small mt-1">Orders (30 days)</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card border-0 shadow-sm p-4 text-center">
+        <div class="fs-2 fw-bold text-warning">{{ pending_orders }}</div>
+        <div class="text-muted small mt-1">Pending Orders</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card border-0 shadow-sm p-4 text-center">
+        <div class="fs-2 fw-bold text-info">{{ product_count }}</div>
+        <div class="text-muted small mt-1">Active Products</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+
+    <!-- RECENT ORDERS -->
+    <div class="col-lg-8">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+          <h5 class="fw-bold mb-0">Recent Orders</h5>
+          <a href="{% url 'vendors:orders' %}" class="btn btn-outline-primary btn-sm">View All</a>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Order #</th>
+                <th>Buyer</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for sub_order in recent_orders %}
+              <tr>
+                <td class="fw-semibold">{{ sub_order.order.order_number }}</td>
+                <td class="text-muted small">{{ sub_order.order.buyer.get_full_name|default:sub_order.order.buyer.email }}</td>
+                <td class="fw-bold text-primary">₱{{ sub_order.subtotal }}</td>
+                <td>
+                  <span class="badge
+                    {% if sub_order.status == 'delivered' %}bg-success
+                    {% elif sub_order.status == 'cancelled' %}bg-danger
+                    {% elif sub_order.status == 'shipped' %}bg-info
+                    {% elif sub_order.status == 'confirmed' %}bg-primary
+                    {% else %}bg-warning text-dark{% endif %}">
+                    {{ sub_order.get_status_display }}
+                  </span>
+                </td>
+                <td class="text-muted small">{{ sub_order.order.created_at|date:"M d, Y" }}</td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="5" class="text-center text-muted py-4">No orders yet</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOW STOCK -->
+    <div class="col-lg-4">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-0 py-3">
+          <h5 class="fw-bold mb-0">⚠️ Low Stock</h5>
+        </div>
+        <div class="card-body p-0">
+          {% for product in low_stock %}
+          <div class="d-flex align-items-center gap-3 px-4 py-3 border-bottom">
+            {% with product.images.first as img %}
+            {% if img %}
+              <img src="{{ img.image.url }}" class="rounded" style="width:45px;height:45px;object-fit:cover;">
+            {% else %}
+              <div class="bg-light rounded d-flex align-items-center justify-content-center" style="width:45px;height:45px;">📦</div>
+            {% endif %}
+            {% endwith %}
+            <div class="flex-grow-1">
+              <p class="fw-semibold mb-0 small">{{ product.name }}</p>
+              <p class="text-danger small mb-0">{{ product.stock }} left</p>
+            </div>
+          </div>
+          {% empty %}
+          <p class="text-muted text-center py-4 small">All products are well stocked!</p>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- QUICK LINKS -->
+      <div class="card border-0 shadow-sm mt-4 p-4">
+        <h5 class="fw-bold mb-3">Quick Links</h5>
+        <div class="d-grid gap-2">
+          <a href="{% url 'vendors:products' %}" class="btn btn-outline-primary btn-sm"><i class="bi bi-box me-2"></i>Manage Products</a>
+          <a href="{% url 'vendors:orders' %}" class="btn btn-outline-primary btn-sm"><i class="bi bi-bag me-2"></i>Manage Orders</a>
+          <a href="{% url 'vendors:earnings' %}" class="btn btn-outline-success btn-sm"><i class="bi bi-cash me-2"></i>View Earnings</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

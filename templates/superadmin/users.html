@@ -1,0 +1,50 @@
+﻿{% extends "superadmin/base_admin.html" %}
+{% block title %}Users{% endblock %}
+{% block nav_users %}active{% endblock %}
+{% block page_title %}Users{% endblock %}
+
+{% block content %}
+<div class="stat-card">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h6 class="fw-bold mb-0">All Users</h6>
+    <div class="d-flex gap-2">
+      <a href="?role=" class="btn btn-sm {% if not role_filter %}btn-primary{% else %}btn-outline-secondary{% endif %}">All</a>
+      <a href="?role=buyer" class="btn btn-sm {% if role_filter == 'buyer' %}btn-primary{% else %}btn-outline-secondary{% endif %}">Buyers</a>
+      <a href="?role=vendor" class="btn btn-sm {% if role_filter == 'vendor' %}btn-primary{% else %}btn-outline-secondary{% endif %}">Vendors</a>
+    </div>
+  </div>
+  <table class="table table-hover">
+    <thead class="table-light">
+      <tr><th>User</th><th>Email</th><th>Role</th><th>Joined</th><th>Status</th><th>Action</th></tr>
+    </thead>
+    <tbody>
+      {% for user in users %}
+      <tr>
+        <td class="small fw-semibold">{{ user.username }}</td>
+        <td class="small text-muted">{{ user.email }}</td>
+        <td><span class="badge bg-{% if user.role == 'vendor' %}success{% else %}info{% endif %}">{{ user.role }}</span></td>
+        <td class="small text-muted">{{ user.date_joined|date:"M d, Y" }}</td>
+        <td>
+          {% if user.is_active %}
+            <span class="badge bg-success">Active</span>
+          {% else %}
+            <span class="badge bg-danger">Inactive</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if not user.is_superuser %}
+          <a href="{% url 'vendors:superadmin_toggle_user' user.pk %}"
+             class="btn btn-sm {% if user.is_active %}btn-outline-danger{% else %}btn-outline-success{% endif %}"
+             onclick="return confirm('{% if user.is_active %}Deactivate{% else %}Activate{% endif %} {{ user.email }}?')">
+            {% if user.is_active %}Deactivate{% else %}Activate{% endif %}
+          </a>
+          {% endif %}
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="6" class="text-center text-muted">No users found.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

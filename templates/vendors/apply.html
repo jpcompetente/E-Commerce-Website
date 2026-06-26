@@ -1,0 +1,57 @@
+﻿{% extends "base.html" %}
+{% block title %}Become a Vendor - Marketplace{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-7">
+      <div class="card border-0 shadow-sm p-5">
+        <h2 class="fw-bold mb-2">Become a Vendor</h2>
+        <p class="text-muted mb-4">Start selling your products on our marketplace.</p>
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Store Name</label>
+            <input type="text" name="store_name" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Business Type</label>
+            <select name="business_type" class="form-select" required>
+              <option value="">Select type...</option>
+              <option value="student">Student Business</option>
+              <option value="small_business">Small Business</option>
+              <option value="freelancer">Freelancer</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Description</label>
+            <textarea name="description" class="form-control" rows="4" required placeholder="Tell us about your store..."></textarea>
+          </div>
+          <div class="mb-3 form-check">
+            <input type="checkbox" name="is_student" class="form-check-input" id="isStudent">
+            <label class="form-check-label" for="isStudent">I am a student</label>
+          </div>
+          <div class="mb-3" id="schoolField" style="display:none;">
+            <label class="form-label fw-semibold">School / University</label>
+            <input type="text" name="school" class="form-control">
+          </div>
+          <div class="mb-4">
+            <label class="form-label fw-semibold">ID Document</label>
+            <input type="file" name="id_document" class="form-control" accept="image/*,.pdf">
+            <div class="form-text">Upload a valid ID or student ID.</div>
+          </div>
+          <button type="submit" class="btn btn-primary btn-lg w-100">Submit Application</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('isStudent').addEventListener('change', function() {
+  document.getElementById('schoolField').style.display = this.checked ? 'block' : 'none';
+});
+</script>
+{% endblock %}

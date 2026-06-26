@@ -1,0 +1,56 @@
+﻿{% extends "superadmin/base_admin.html" %}
+{% block title %}Vendor Applications{% endblock %}
+{% block nav_applications %}active{% endblock %}
+{% block page_title %}Vendor Applications{% endblock %}
+
+{% block content %}
+<div class="d-flex gap-2 mb-4">
+  <a href="?status=pending" class="btn btn-sm {% if status_filter == 'pending' %}btn-warning{% else %}btn-outline-secondary{% endif %}">⏳ Pending</a>
+  <a href="?status=approved" class="btn btn-sm {% if status_filter == 'approved' %}btn-success{% else %}btn-outline-secondary{% endif %}">✅ Approved</a>
+  <a href="?status=rejected" class="btn btn-sm {% if status_filter == 'rejected' %}btn-danger{% else %}btn-outline-secondary{% endif %}">❌ Rejected</a>
+</div>
+
+{% if applications %}
+<div class="row g-3">
+  {% for app in applications %}
+  <div class="col-md-6">
+    <div class="stat-card h-100">
+      <div class="d-flex justify-content-between mb-2">
+        <div>
+          <h6 class="fw-bold mb-0">{{ app.store_name }}</h6>
+          <p class="text-muted small mb-0">{{ app.user.email }}</p>
+        </div>
+        <span class="badge bg-{% if app.status == 'pending' %}warning text-dark{% elif app.status == 'approved' %}success{% else %}danger{% endif %}">
+          {{ app.get_status_display }}
+        </span>
+      </div>
+      <p class="small mb-1"><strong>Type:</strong> {{ app.business_type }}</p>
+      {% if app.is_student %}<p class="small mb-1"><strong>School:</strong> {{ app.school }}</p>{% endif %}
+      <p class="small text-muted mb-2">{{ app.description|truncatewords:15 }}</p>
+      {% if app.id_document %}
+      <a href="{{ app.id_document.url }}" target="_blank" class="btn btn-outline-secondary btn-sm mb-2">
+        <i class="bi bi-file-earmark"></i> View Document
+      </a>
+      {% endif %}
+      <p class="small text-muted mb-2">Applied: {{ app.created_at|date:"M d, Y" }}</p>
+      {% if app.status == 'pending' %}
+      <div class="d-flex gap-2">
+        <a href="{% url 'vendors:superadmin_approve_vendor' app.pk %}"
+           class="btn btn-success btn-sm flex-fill"
+           onclick="return confirm('Approve {{ app.store_name }}?')">✅ Approve</a>
+        <a href="{% url 'vendors:superadmin_reject_vendor' app.pk %}"
+           class="btn btn-danger btn-sm flex-fill"
+           onclick="return confirm('Reject {{ app.store_name }}?')">❌ Reject</a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="stat-card text-center py-5">
+  <div style="font-size:3rem;">📭</div>
+  <h5 class="fw-bold mt-3">No {{ status_filter }} applications</h5>
+</div>
+{% endif %}
+{% endblock %}

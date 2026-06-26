@@ -1,0 +1,44 @@
+﻿{% extends "superadmin/base_admin.html" %}
+{% block title %}Products{% endblock %}
+{% block nav_products %}active{% endblock %}
+{% block page_title %}Products{% endblock %}
+
+{% block content %}
+<div class="stat-card">
+  <table class="table table-hover">
+    <thead class="table-light">
+      <tr><th>Product</th><th>Store</th><th>Price</th><th>Stock</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+      {% for product in products %}
+      <tr>
+        <td>
+          <div class="d-flex align-items-center gap-2">
+            {% with product.images.first as img %}
+              {% if img %}
+                <img src="{{ img.image.url }}" width="36" height="36" style="object-fit:cover;border-radius:6px;">
+              {% else %}
+                <div class="bg-light rounded d-flex align-items-center justify-content-center" style="width:36px;height:36px;">
+                  <i class="bi bi-image text-muted"></i>
+                </div>
+              {% endif %}
+            {% endwith %}
+            <span class="small fw-semibold">{{ product.name|truncatechars:30 }}</span>
+          </div>
+        </td>
+        <td class="small text-muted">{{ product.store.name }}</td>
+        <td class="small">₱{{ product.price }}</td>
+        <td class="small">{{ product.stock }}</td>
+        <td>
+          <span class="badge bg-{% if product.status == 'active' %}success{% elif product.status == 'draft' %}secondary{% else %}warning text-dark{% endif %}">
+            {{ product.status }}
+          </span>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="5" class="text-center text-muted">No products yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

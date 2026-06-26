@@ -1,4 +1,4 @@
-"""
+﻿"""
 Django settings for Student & Small Business Multi-Vendor Marketplace
 """
 from pathlib import Path
@@ -118,4 +118,5 @@ EMAIL_HOST_USER = env('EMAIL_HOST_USER', default='')
 EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default='')
 DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default='noreply@marketplace.com')
 
-MARKETPLACE_COMMISSION_RATE = 0.05
+from decimal import Decimal
+MARKETPLACE_COMMISSION_RATE = Decimal('0.05')

@@ -1,0 +1,80 @@
+﻿{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% block title %}Account Settings{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-9">
+      <h4 class="fw-bold mb-4">⚙️ Account Settings</h4>
+
+      <!-- Tabs -->
+      <ul class="nav nav-tabs mb-4" id="settingsTabs">
+        <li class="nav-item">
+          <a class="nav-link active" data-bs-toggle="tab" href="#profile">👤 Profile</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" data-bs-toggle="tab" href="#addresses">📍 Addresses</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'account_change_password' %}">🔒 Change Password</a>
+        </li>
+      </ul>
+
+      <div class="tab-content">
+
+        <!-- Profile Tab -->
+        <div class="tab-pane fade show active" id="profile">
+          <div class="card border-0 shadow-sm p-4">
+            <h5 class="fw-bold mb-3">Edit Profile</h5>
+            <form method="post" enctype="multipart/form-data">
+              {% csrf_token %}
+              {{ profile_form|crispy }}
+              <button type="submit" name="save_profile" class="btn btn-primary mt-2">Save Profile</button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Addresses Tab -->
+        <div class="tab-pane fade" id="addresses">
+          <div class="card border-0 shadow-sm p-4 mb-4">
+            <h5 class="fw-bold mb-3">Saved Addresses</h5>
+            {% if addresses %}
+              {% for addr in addresses %}
+              <div class="border rounded p-3 mb-2 d-flex justify-content-between align-items-start">
+                <div>
+                  <strong>{{ addr.label }}</strong>
+                  {% if addr.is_default %}<span class="badge bg-success ms-1">Default</span>{% endif %}
+                  <p class="mb-0 small text-muted">{{ addr.full_name }} | {{ addr.phone }}</p>
+                  <p class="mb-0 small">{{ addr.street }}, {{ addr.city }}, {{ addr.province }} {{ addr.postal_code }}</p>
+                </div>
+                <div class="d-flex flex-column gap-1 ms-3">
+                  {% if not addr.is_default %}
+                  <a href="{% url 'users:set_default_address' addr.pk %}" class="btn btn-outline-success btn-sm">Set Default</a>
+                  {% endif %}
+                  <a href="{% url 'users:delete_address' addr.pk %}" class="btn btn-outline-danger btn-sm"
+                     onclick="return confirm('Delete this address?')">Delete</a>
+                </div>
+              </div>
+              {% endfor %}
+            {% else %}
+              <p class="text-muted">No saved addresses yet.</p>
+            {% endif %}
+          </div>
+
+          <!-- Add Address Form -->
+          <div class="card border-0 shadow-sm p-4">
+            <h5 class="fw-bold mb-3">Add New Address</h5>
+            <form method="post">
+              {% csrf_token %}
+              {{ address_form|crispy }}
+              <button type="submit" name="save_address" class="btn btn-primary mt-2">Add Address</button>
+            </form>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
