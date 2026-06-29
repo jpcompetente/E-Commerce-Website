@@ -27,6 +27,9 @@
           {% endif %}
           <button type="submit" class="btn btn-primary w-100 btn-lg mt-2">Login</button>
         </form>
+        <p class="text-center mt-3 mb-0">
+          <a href="{% url 'account_reset_password' %}" class="text-muted small">Forgot your password?</a>
+        </p>
         <hr class="my-4">
         <p class="text-center mb-0 text-muted small">
           Don't have an account? <a href="{% url 'account_signup' %}" class="text-primary fw-semibold">Sign Up</a>
@@ -36,3 +39,4 @@
   </div>
 </div>
 {% endblock %}
+
