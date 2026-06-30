@@ -123,7 +123,28 @@ def order_list(request):
 @login_required
 def order_detail(request, order_number):
     order = get_object_or_404(Order, order_number=order_number, buyer=request.user)
-    return render(request, 'orders/order_detail.html', {'order': order})
+    from apps.reviews.models import Review
+    reviewed_product_ids = set(
+        Review.objects.filter(reviewer=request.user).values_list('product_id', flat=True)
+    )
+    return render(request, 'orders/order_detail.html', {
+        'order': order,
+        'reviewed_product_ids': reviewed_product_ids,
+    })
+
+
+@login_required
+@require_POST
+def cancel_order(request, order_number):
+    order = get_object_or_404(Order, order_number=order_number, buyer=request.user)
+    if order.status == 'pending':
+        order.status = 'cancelled'
+        order.save()
+        order.sub_orders.update(status='cancelled')
+        messages.success(request, 'Order cancelled successfully.')
+    else:
+        messages.error(request, 'Only pending orders can be cancelled.')
+    return redirect('orders:order_detail', order_number=order_number)
 
 
 def _get_cart(request):

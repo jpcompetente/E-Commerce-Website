@@ -64,6 +64,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'apps.orders.context_processors.cart_context',
+                'apps.messaging.context_processors.unread_messages',
             ],
         },
     },
@@ -120,3 +121,4 @@ DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default='noreply@marketplace.com'
 
 from decimal import Decimal
 MARKETPLACE_COMMISSION_RATE = Decimal('0.05')
+

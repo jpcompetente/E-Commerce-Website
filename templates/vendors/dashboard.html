@@ -124,6 +124,9 @@
           <a href="{% url 'vendors:products' %}" class="btn btn-outline-primary btn-sm"><i class="bi bi-box me-2"></i>Manage Products</a>
           <a href="{% url 'vendors:orders' %}" class="btn btn-outline-primary btn-sm"><i class="bi bi-bag me-2"></i>Manage Orders</a>
           <a href="{% url 'vendors:earnings' %}" class="btn btn-outline-success btn-sm"><i class="bi bi-cash me-2"></i>View Earnings</a>
+          <a href="{% url 'vendors:store_reviews' %}" class="btn btn-outline-info btn-sm"><i class="bi bi-chat-square-text me-2"></i>Customer Reviews</a>
+          <a href="{% url 'messaging:inbox' %}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-chat-dots me-2"></i>Messages</a>
+          <a href="{% url 'vendors:store_policy' %}" class="btn btn-outline-warning btn-sm"><i class="bi bi-file-text me-2"></i>Store Policy</a>
         </div>
       </div>
     </div>
@@ -131,3 +134,4 @@
   </div>
 </div>
 {% endblock %}
+

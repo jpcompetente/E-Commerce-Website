@@ -58,6 +58,14 @@
             <a class="nav-link" href="{% url 'products:wishlist' %}"><i class="bi bi-heart"></i></a>
           </li>
           <li class="nav-item">
+            <a class="nav-link position-relative" href="{% url 'messaging:inbox' %}">
+              <i class="bi bi-chat-dots"></i>
+              {% if unread_message_count %}
+                <span class="cart-badge position-absolute top-0 start-100 translate-middle">{{ unread_message_count }}</span>
+              {% endif %}
+            </a>
+          </li>
+          <li class="nav-item">
             <a class="nav-link position-relative" href="{% url 'orders:cart' %}">
               <i class="bi bi-bag"></i>
               {% if cart_count %}
@@ -74,6 +82,7 @@
               <li><a class="dropdown-item" href="{% url 'users:settings' %}"><i class="bi bi-gear me-2"></i>Settings</a></li>
               <li><a class="dropdown-item" href="{% url 'orders:order_list' %}"><i class="bi bi-box me-2"></i>My Orders</a></li>
               <li><a class="dropdown-item" href="{% url 'products:wishlist' %}"><i class="bi bi-heart me-2"></i>Wishlist</a></li>
+              <li><a class="dropdown-item" href="{% url 'messaging:inbox' %}"><i class="bi bi-chat-dots me-2"></i>Messages</a></li>
               {% if user.is_vendor %}
                 <li><hr class="dropdown-divider"></li>
                 <li><a class="dropdown-item" href="{% url 'vendors:dashboard' %}"><i class="bi bi-shop me-2"></i>Vendor Dashboard</a></li>

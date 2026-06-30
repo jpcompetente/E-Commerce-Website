@@ -12,11 +12,8 @@
           <i class="bi bi-arrow-left me-1"></i>Back
         </a>
       </div>
-
       <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
-
-        <!-- Basic Info -->
         <div class="card border-0 shadow-sm p-4 mb-4">
           <h6 class="fw-bold mb-3">📝 Basic Info</h6>
           {{ form.name|as_crispy_field }}
@@ -27,8 +24,6 @@
           </div>
           {{ form.tags|as_crispy_field }}
         </div>
-
-        <!-- Pricing -->
         <div class="card border-0 shadow-sm p-4 mb-4">
           <h6 class="fw-bold mb-3">💰 Pricing</h6>
           <div class="row">
@@ -36,8 +31,6 @@
             <div class="col-md-6">{{ form.compare_at_price|as_crispy_field }}</div>
           </div>
         </div>
-
-        <!-- Inventory -->
         <div class="card border-0 shadow-sm p-4 mb-4">
           <h6 class="fw-bold mb-3">📦 Inventory</h6>
           <div class="row">
@@ -47,41 +40,80 @@
           </div>
           {{ form.track_inventory|as_crispy_field }}
         </div>
-
-        <!-- Images -->
         <div class="card border-0 shadow-sm p-4 mb-4">
           <h6 class="fw-bold mb-3">🖼️ Product Images</h6>
           {% if product.images.all %}
-          <div class="d-flex gap-2 flex-wrap mb-3">
+          <div class="d-flex gap-2 flex-wrap mb-3" id="image-list">
             {% for img in product.images.all %}
-            <img src="{{ img.image.url }}" style="width:80px;height:80px;object-fit:cover;border-radius:8px;">
+            <div class="position-relative" id="img-{{ img.pk }}">
+              <img src="{{ img.image.url }}" style="width:80px;height:80px;object-fit:cover;border-radius:8px;">
+              <button type="button"
+                class="btn btn-danger btn-sm p-0 d-flex align-items-center justify-content-center position-absolute delete-img-btn"
+                style="width:20px;height:20px;font-size:0.6rem;border-radius:50%;top:2px;right:2px;"
+                data-url="{% url 'vendors:delete_product_image' img.pk %}"
+                data-id="{{ img.pk }}">
+                <i class="bi bi-x"></i>
+              </button>
+            </div>
             {% endfor %}
           </div>
           {% endif %}
           <input type="file" name="images" class="form-control" multiple accept="image/*">
           <small class="text-muted">You can select multiple images.</small>
         </div>
-
-        <!-- Status -->
         <div class="card border-0 shadow-sm p-4 mb-4">
           <h6 class="fw-bold mb-3">⚙️ Status</h6>
           {{ form.status|as_crispy_field }}
         </div>
-
         <div class="d-flex gap-2">
           <button type="submit" class="btn btn-primary flex-fill">
             <i class="bi bi-check-lg me-1"></i>{{ action }} Product
           </button>
           {% if product %}
-          <a href="{% url 'vendors:delete_product' product.pk %}"
-             class="btn btn-outline-danger"
-             onclick="return confirm('Delete this product?')">
+          <button type="button" class="btn btn-outline-danger" id="delete-product-btn">
             <i class="bi bi-trash"></i>
-          </a>
+          </button>
           {% endif %}
         </div>
       </form>
     </div>
   </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Delete image via AJAX
+document.querySelectorAll('.delete-img-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    if (!confirm('Delete this image?')) return;
+    const url = this.dataset.url;
+    const id = this.dataset.id;
+    fetch(url, {
+      method: 'POST',
+      headers: { 'X-CSRFToken': '{{ csrf_token }}' }
+    }).then(() => {
+      document.getElementById('img-' + id).remove();
+    });
+  });
+});
+
+// Delete product via POST
+const deleteBtn = document.getElementById('delete-product-btn');
+if (deleteBtn) {
+  deleteBtn.addEventListener('click', function() {
+    if (!confirm('Delete this product? This cannot be undone.')) return;
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '{% if product %}{% url "vendors:delete_product" product.pk %}{% endif %}';
+    const csrf = document.createElement('input');
+    csrf.type = 'hidden';
+    csrf.name = 'csrfmiddlewaretoken';
+    csrf.value = '{{ csrf_token }}';
+    form.appendChild(csrf);
+    document.body.appendChild(form);
+    form.submit();
+  });
+}
+</script>
 {% endblock %}

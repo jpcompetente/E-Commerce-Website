@@ -1,10 +1,12 @@
-from django.shortcuts import render, get_object_or_404, redirect
+﻿from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from .models import Product, Category, Wishlist
+from apps.reviews.models import Review
+from apps.orders.models import OrderItem
 
 
 def home(request):
@@ -81,13 +83,24 @@ def product_detail(request, slug):
         category=product.category, status='active'
     ).exclude(pk=product.pk).prefetch_related('images')[:4]
     in_wishlist = False
+    can_review = False
+    already_reviewed = False
     if request.user.is_authenticated:
         in_wishlist = Wishlist.objects.filter(user=request.user, product=product).exists()
+        already_reviewed = Review.objects.filter(product=product, reviewer=request.user).exists()
+        if not already_reviewed:
+            can_review = OrderItem.objects.filter(
+                product=product,
+                sub_order__order__buyer=request.user,
+                sub_order__status='delivered'
+            ).exists()
     context = {
         'product': product,
         'related_products': related,
         'in_wishlist': in_wishlist,
-        'reviews': product.reviews.filter(is_approved=True).select_related('reviewer')[:10],
+        'can_review': can_review,
+        'already_reviewed': already_reviewed,
+        'reviews': product.reviews.filter(is_approved=True).select_related('reviewer', 'reply').order_by('-created_at'),
     }
     return render(request, 'products/detail.html', context)
 
@@ -109,3 +122,4 @@ def wishlist(request):
         'product__store'
     ).prefetch_related('product__images')
     return render(request, 'products/wishlist.html', {'items': items})
+

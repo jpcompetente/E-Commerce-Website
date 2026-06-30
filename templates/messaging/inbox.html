@@ -1,0 +1,69 @@
+﻿{% extends "base.html" %}
+{% block title %}Messages - Marketplace{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold mb-0"><i class="bi bi-chat-dots me-2"></i>Messages</h2>
+  </div>
+
+  {% if conversations %}
+  <div class="card border-0 shadow-sm">
+    {% for conv in conversations %}
+    {% with conv.messages.last as last_msg %}
+    <a href="{% url 'messaging:conversation' conv.pk %}" class="text-decoration-none text-dark">
+      <div class="d-flex align-items-center gap-3 px-4 py-3 border-bottom conversation-item" style="transition:background .2s;">
+        <!-- Avatar -->
+        {% if request.user == conv.buyer %}
+          {% if conv.store.logo %}
+            <img src="{{ conv.store.logo.url }}" class="rounded-circle" style="width:50px;height:50px;object-fit:cover;">
+          {% else %}
+            <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center text-white fw-bold" style="width:50px;height:50px;font-size:1.2rem;">{{ conv.store.name|first }}</div>
+          {% endif %}
+        {% else %}
+          {% if conv.buyer.avatar %}
+            <img src="{{ conv.buyer.avatar.url }}" class="rounded-circle" style="width:50px;height:50px;object-fit:cover;">
+          {% else %}
+            <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center text-white fw-bold" style="width:50px;height:50px;font-size:1.2rem;">{{ conv.buyer.email|first|upper }}</div>
+          {% endif %}
+        {% endif %}
+
+        <!-- Content -->
+        <div class="flex-grow-1 overflow-hidden">
+          <div class="d-flex justify-content-between align-items-center">
+            <span class="fw-semibold">
+              {% if request.user == conv.buyer %}{{ conv.store.name }}{% else %}{{ conv.buyer.get_full_name|default:conv.buyer.email }}{% endif %}
+            </span>
+            <span class="text-muted small">{{ last_msg.sent_at|date:"M d" }}</span>
+          </div>
+          {% if conv.product %}
+          <p class="text-muted small mb-0"><i class="bi bi-box me-1"></i>{{ conv.product.name }}</p>
+          {% endif %}
+          <p class="text-muted small mb-0 text-truncate">
+            {% if last_msg %}{{ last_msg.body }}{% else %}No messages yet{% endif %}
+          </p>
+        </div>
+
+        <!-- Unread badge -->
+        {% with conv.messages.all as msgs %}
+        {% if msgs|length > 0 %}
+        <span class="badge bg-primary rounded-pill">{{ msgs|length }}</span>
+        {% endif %}
+        {% endwith %}
+      </div>
+    </a>
+    {% endwith %}
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="text-center text-muted py-5">
+    <i class="bi bi-chat-dots display-4"></i>
+    <p class="mt-3">No conversations yet.</p>
+  </div>
+  {% endif %}
+</div>
+
+<style>
+.conversation-item:hover { background: #f8f9fa; }
+</style>
+{% endblock %}

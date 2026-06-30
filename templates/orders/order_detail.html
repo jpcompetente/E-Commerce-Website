@@ -56,6 +56,17 @@
             </div>
             <span class="fw-bold text-primary">₱{{ item.subtotal }}</span>
           </div>
+          {% if sub_order.status == 'delivered' %}
+          <div class="mt-2">
+            {% if item.product.pk in reviewed_product_ids %}
+            <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Reviewed</span>
+            {% else %}
+            <a href="{{ item.product.get_absolute_url }}#write-review" class="btn btn-sm btn-outline-primary">
+              <i class="bi bi-pencil-square me-1"></i>Write a Review
+            </a>
+            {% endif %}
+          </div>
+          {% endif %}
           {% endfor %}
           <div class="text-end mt-3 pt-3 border-top">
             <span class="text-muted small">Store Subtotal: </span>
@@ -102,10 +113,19 @@
     </div>
   </div>
 
-  <div class="mt-4">
+  <div class="mt-4 d-flex gap-3">
     <a href="{% url 'orders:order_list' %}" class="btn btn-outline-secondary">
       <i class="bi bi-arrow-left me-2"></i>Back to Orders
     </a>
+    {% if order.status == 'pending' %}
+    <form method="post" action="{% url 'orders:cancel_order' order.order_number %}">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-outline-danger"
+        onclick="return confirm('Are you sure you want to cancel this order?')">
+        <i class="bi bi-x-circle me-2"></i>Cancel Order
+      </button>
+    </form>
+    {% endif %}
   </div>
 
 </div>

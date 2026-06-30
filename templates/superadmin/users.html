@@ -32,13 +32,20 @@
           {% endif %}
         </td>
         <td>
-          {% if not user.is_superuser %}
-          <a href="{% url 'vendors:superadmin_toggle_user' user.pk %}"
-             class="btn btn-sm {% if user.is_active %}btn-outline-danger{% else %}btn-outline-success{% endif %}"
-             onclick="return confirm('{% if user.is_active %}Deactivate{% else %}Activate{% endif %} {{ user.email }}?')">
-            {% if user.is_active %}Deactivate{% else %}Activate{% endif %}
-          </a>
-          {% endif %}
+          <div class="d-flex gap-1">
+            <a href="{% url 'vendors:superadmin_change_password' user.pk %}" class="btn btn-sm btn-outline-primary" title="Change Password">
+              <i class="bi bi-key"></i>
+            </a>
+            {% if not user.is_superuser %}
+            <form method="post" action="{% url 'vendors:superadmin_toggle_user' user.pk %}"
+                  onsubmit="return confirm('{% if user.is_active %}Deactivate{% else %}Activate{% endif %} {{ user.email }}?')">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-sm {% if user.is_active %}btn-outline-danger{% else %}btn-outline-success{% endif %}">
+                {% if user.is_active %}Deactivate{% else %}Activate{% endif %}
+              </button>
+            </form>
+            {% endif %}
+          </div>
         </td>
       </tr>
       {% empty %}
@@ -48,3 +55,5 @@
   </table>
 </div>
 {% endblock %}
+
+

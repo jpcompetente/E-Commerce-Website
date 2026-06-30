@@ -35,12 +35,16 @@
       <p class="small text-muted mb-2">Applied: {{ app.created_at|date:"M d, Y" }}</p>
       {% if app.status == 'pending' %}
       <div class="d-flex gap-2">
-        <a href="{% url 'vendors:superadmin_approve_vendor' app.pk %}"
-           class="btn btn-success btn-sm flex-fill"
-           onclick="return confirm('Approve {{ app.store_name }}?')">✅ Approve</a>
-        <a href="{% url 'vendors:superadmin_reject_vendor' app.pk %}"
-           class="btn btn-danger btn-sm flex-fill"
-           onclick="return confirm('Reject {{ app.store_name }}?')">❌ Reject</a>
+        <form method="post" action="{% url 'vendors:superadmin_approve_vendor' app.pk %}" class="flex-fill"
+              onsubmit="return confirm('Approve {{ app.store_name }}?')">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-success btn-sm w-100">✅ Approve</button>
+        </form>
+        <form method="post" action="{% url 'vendors:superadmin_reject_vendor' app.pk %}" class="flex-fill"
+              onsubmit="return confirm('Reject {{ app.store_name }}?')">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger btn-sm w-100">❌ Reject</button>
+        </form>
       </div>
       {% endif %}
     </div>
@@ -54,3 +58,4 @@
 </div>
 {% endif %}
 {% endblock %}
+

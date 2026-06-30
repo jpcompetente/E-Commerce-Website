@@ -50,10 +50,16 @@
                 </div>
                 <div class="d-flex flex-column gap-1 ms-3">
                   {% if not addr.is_default %}
-                  <a href="{% url 'users:set_default_address' addr.pk %}" class="btn btn-outline-success btn-sm">Set Default</a>
+                  <form method="post" action="{% url 'users:set_default_address' addr.pk %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-outline-success btn-sm w-100">Set Default</button>
+                  </form>
                   {% endif %}
-                  <a href="{% url 'users:delete_address' addr.pk %}" class="btn btn-outline-danger btn-sm"
-                     onclick="return confirm('Delete this address?')">Delete</a>
+                  <form method="post" action="{% url 'users:delete_address' addr.pk %}"
+                        onsubmit="return confirm('Delete this address?')">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-outline-danger btn-sm w-100">Delete</button>
+                  </form>
                 </div>
               </div>
               {% endfor %}
@@ -78,3 +84,4 @@
   </div>
 </div>
 {% endblock %}
+

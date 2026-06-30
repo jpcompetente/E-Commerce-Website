@@ -25,6 +25,15 @@
     </div>
   </div>
 
+  <!-- ACTION BUTTONS -->
+  {% if user.is_authenticated and user != store.owner %}
+  <div class="mb-4">
+    <a href="{% url 'messaging:start_conversation' store.slug %}" class="btn btn-outline-primary">
+      <i class="bi bi-chat-dots me-2"></i>Message Seller
+    </a>
+  </div>
+  {% endif %}
+
   <!-- PRODUCTS -->
   {% if products %}
   <h4 class="fw-bold mb-4">Products</h4>
@@ -52,9 +61,43 @@
     <div class="text-warning small my-1">
       {% for i in "12345" %}{% if forloop.counter <= review.rating %}<i class="bi bi-star-fill"></i>{% else %}<i class="bi bi-star"></i>{% endif %}{% endfor %}
     </div>
-    <p class="mb-0">{{ review.comment }}</p>
+    <p class="mb-0">{{ review.body }}</p>
   </div>
   {% endfor %}
+  {% endif %}
+
+
+  <!-- STORE POLICY -->
+  {% if policy %}
+  <div class="mt-5">
+    <h4 class="fw-bold mb-4">Store Policies</h4>
+    <div class="row g-4">
+      {% if policy.return_policy %}
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm p-4 h-100">
+          <h6 class="fw-bold mb-3"><i class="bi bi-arrow-return-left text-primary me-2"></i>Return Policy</h6>
+          <p class="text-muted small mb-0" style="white-space:pre-line;">{{ policy.return_policy }}</p>
+        </div>
+      </div>
+      {% endif %}
+      {% if policy.shipping_policy %}
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm p-4 h-100">
+          <h6 class="fw-bold mb-3"><i class="bi bi-truck text-success me-2"></i>Shipping Policy</h6>
+          <p class="text-muted small mb-0" style="white-space:pre-line;">{{ policy.shipping_policy }}</p>
+        </div>
+      </div>
+      {% endif %}
+      {% if policy.privacy_policy %}
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm p-4 h-100">
+          <h6 class="fw-bold mb-3"><i class="bi bi-shield-check text-info me-2"></i>Privacy Policy</h6>
+          <p class="text-muted small mb-0" style="white-space:pre-line;">{{ policy.privacy_policy }}</p>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
   {% endif %}
 
 </div>

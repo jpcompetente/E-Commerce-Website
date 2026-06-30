@@ -1,5 +1,6 @@
 ﻿from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
 from django import forms
 from .models import User, Address
 
@@ -56,14 +57,19 @@ def settings_view(request):
     })
 
 @login_required
+@require_POST
 def delete_address_view(request, pk):
     address = get_object_or_404(Address, pk=pk, user=request.user)
     address.delete()
     return redirect('users:settings')
 
 @login_required
+@require_POST
 def set_default_address_view(request, pk):
     address = get_object_or_404(Address, pk=pk, user=request.user)
     address.is_default = True
     address.save()
     return redirect('users:settings')
+
+
+

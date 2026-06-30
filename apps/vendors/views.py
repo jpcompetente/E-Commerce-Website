@@ -1,6 +1,7 @@
 ﻿from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
+from django.views.decorators.http import require_POST
 from django.contrib import messages
 from django.db.models import Sum, Count
 from django.utils import timezone
@@ -9,6 +10,8 @@ from .models import Store, VendorApplication
 from apps.products.models import Product
 from apps.orders.models import Order, SubOrder
 from apps.users.models import User
+from django.contrib.auth.forms import AdminPasswordChangeForm
+from apps.reviews.models import Review
 
 
 def store_detail(request, slug):
@@ -148,6 +151,7 @@ def superadmin_users(request):
 
 
 @staff_member_required
+@require_POST
 def superadmin_toggle_user(request, pk):
     user = get_object_or_404(User, pk=pk)
     user.is_active = not user.is_active
@@ -170,6 +174,7 @@ def superadmin_applications(request):
 
 
 @staff_member_required
+@require_POST
 def superadmin_approve_vendor(request, pk):
     application = get_object_or_404(VendorApplication, pk=pk)
     application.status = 'approved'
@@ -191,6 +196,7 @@ def superadmin_approve_vendor(request, pk):
 
 
 @staff_member_required
+@require_POST
 def superadmin_reject_vendor(request, pk):
     application = get_object_or_404(VendorApplication, pk=pk)
     application.status = 'rejected'
@@ -275,6 +281,7 @@ def edit_product(request, pk):
     return render(request, 'vendors/product_form.html', {'form': form, 'store': store, 'product': product, 'action': 'Edit'})
 
 @login_required
+@require_POST
 def delete_product(request, pk):
     if not request.user.is_vendor:
         return redirect('vendors:apply')
@@ -318,3 +325,63 @@ def update_order_status(request, pk):
         messages.success(request, f'Order #{order.order_number} updated to {new_status}!')
     return redirect('vendors:orders')
 
+
+
+
+
+@staff_member_required
+def superadmin_change_password(request, pk):
+    user = get_object_or_404(User, pk=pk)
+    if request.method == 'POST':
+        form = AdminPasswordChangeForm(user, request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Password for {user.email} has been changed.')
+            return redirect('vendors:superadmin_users')
+    else:
+        form = AdminPasswordChangeForm(user)
+    return render(request, 'superadmin/change_password.html', {
+        'form': form,
+        'target_user': user,
+    })
+
+
+
+@login_required
+def store_reviews(request):
+    if not request.user.is_vendor:
+        return redirect('vendors:apply')
+    store = get_object_or_404(Store, owner=request.user)
+    reviews = Review.objects.filter(product__store=store).select_related(
+        'reviewer', 'product', 'reply'
+    ).order_by('-created_at')
+    return render(request, 'vendors/reviews.html', {'store': store, 'reviews': reviews})
+
+
+@login_required
+def store_policy(request):
+    if not request.user.is_vendor:
+        return redirect('vendors:apply')
+    store = get_object_or_404(Store, owner=request.user)
+    from .models import StorePolicy
+    policy, created = StorePolicy.objects.get_or_create(store=store)
+    if request.method == 'POST':
+        policy.return_policy = request.POST.get('return_policy', '').strip()
+        policy.shipping_policy = request.POST.get('shipping_policy', '').strip()
+        policy.privacy_policy = request.POST.get('privacy_policy', '').strip()
+        policy.save()
+        messages.success(request, 'Store policies updated successfully!')
+        return redirect('vendors:store_policy')
+    return render(request, 'vendors/store_policy.html', {'store': store, 'policy': policy})
+
+
+@login_required
+@require_POST
+def delete_product_image(request, pk):
+    from apps.products.models import ProductImage
+    image = get_object_or_404(ProductImage, pk=pk, product__store__owner=request.user)
+    product_pk = image.product.pk
+    image.image.delete(save=False)
+    image.delete()
+    messages.success(request, 'Image deleted.')
+    return redirect('vendors:edit_product', pk=product_pk)
