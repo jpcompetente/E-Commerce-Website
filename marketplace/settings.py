@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'apps.payments',
     'apps.reviews',
     'apps.messaging',
+    'apps.notifications',
 ]
 
 MIDDLEWARE = [
@@ -65,6 +66,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'apps.orders.context_processors.cart_context',
                 'apps.messaging.context_processors.unread_messages',
+                'apps.notifications.context_processors.notifications_context',
             ],
         },
     },
@@ -121,4 +123,6 @@ DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default='noreply@marketplace.com'
 
 from decimal import Decimal
 MARKETPLACE_COMMISSION_RATE = Decimal('0.05')
+
+
 

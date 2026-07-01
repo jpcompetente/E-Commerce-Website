@@ -18,6 +18,7 @@ def cart_detail(request):
     })
 
 
+@login_required
 @require_POST
 def add_to_cart(request, product_id):
     product = get_object_or_404(Product, pk=product_id, status='active')

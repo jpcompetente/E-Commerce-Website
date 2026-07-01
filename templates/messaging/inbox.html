@@ -11,8 +11,8 @@
   <div class="card border-0 shadow-sm">
     {% for conv in conversations %}
     {% with conv.messages.last as last_msg %}
-    <a href="{% url 'messaging:conversation' conv.pk %}" class="text-decoration-none text-dark">
-      <div class="d-flex align-items-center gap-3 px-4 py-3 border-bottom conversation-item" style="transition:background .2s;">
+    <div class="d-flex align-items-center gap-3 px-4 py-3 border-bottom conversation-item" style="transition:background .2s;">
+      <a href="{% url 'messaging:conversation' conv.pk %}" class="text-decoration-none text-dark d-flex align-items-center gap-3 flex-grow-1 overflow-hidden">
         <!-- Avatar -->
         {% if request.user == conv.buyer %}
           {% if conv.store.logo %}
@@ -50,8 +50,14 @@
         <span class="badge bg-primary rounded-pill">{{ msgs|length }}</span>
         {% endif %}
         {% endwith %}
-      </div>
-    </a>
+      </a>
+      <form method="post" action="{% url 'messaging:delete_conversation' conv.pk %}" onsubmit="return confirm('Delete this conversation?')">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-sm btn-outline-danger border-0">
+          <i class="bi bi-trash"></i>
+        </button>
+      </form>
+    </div>
     {% endwith %}
     {% endfor %}
   </div>

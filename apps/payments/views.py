@@ -86,6 +86,7 @@ def stripe_webhook(request):
 
 
 def _create_vendor_payouts(order):
+    from apps.notifications.utils import notify
     for sub_order in order.sub_orders.all():
         VendorPayout.objects.get_or_create(
             sub_order=sub_order,
@@ -96,3 +97,17 @@ def _create_vendor_payouts(order):
                 'status': 'pending',
             }
         )
+        notify(
+            recipient=sub_order.store.owner,
+            title='New Order Received!',
+            message=f'You have a new order from {order.buyer.get_full_name() or order.buyer.email} - ₱{sub_order.subtotal}',
+            link='/vendors/dashboard/orders/',
+            notif_type='order',
+        )
+    notify(
+        recipient=order.buyer,
+        title='Order Confirmed!',
+        message=f'Your order {order.order_number} has been confirmed.',
+        link=f'/orders/my-orders/{order.order_number}/',
+        notif_type='order',
+    )

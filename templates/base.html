@@ -57,13 +57,29 @@
           <li class="nav-item">
             <a class="nav-link" href="{% url 'products:wishlist' %}"><i class="bi bi-heart"></i></a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link position-relative" href="{% url 'messaging:inbox' %}">
-              <i class="bi bi-chat-dots"></i>
-              {% if unread_message_count %}
-                <span class="cart-badge position-absolute top-0 start-100 translate-middle">{{ unread_message_count }}</span>
+          <li class="nav-item dropdown">
+            <a class="nav-link position-relative dropdown-toggle" href="#" data-bs-toggle="dropdown">
+              <i class="bi bi-bell"></i>
+              {% if unread_notif_count %}
+                <span class="cart-badge position-absolute top-0 start-100 translate-middle">{{ unread_notif_count }}</span>
               {% endif %}
             </a>
+            <ul class="dropdown-menu dropdown-menu-end" style="width:320px;max-height:400px;overflow-y:auto;">
+              <li><h6 class="dropdown-header">Notifications</h6></li>
+              {% for notif in recent_notifications %}
+              <li>
+                <a class="dropdown-item {% if not notif.is_read %}bg-light{% endif %}" href="{% url 'notifications:redirect' notif.pk %}">
+                  <div class="fw-semibold small">{{ notif.title }}</div>
+                  {% if notif.message %}<div class="text-muted small text-truncate">{{ notif.message }}</div>{% endif %}
+                  <div class="text-muted" style="font-size:0.7rem;">{{ notif.created_at|timesince }} ago</div>
+                </a>
+              </li>
+              {% empty %}
+              <li><span class="dropdown-item-text text-muted small">No notifications yet.</span></li>
+              {% endfor %}
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item text-center small text-primary" href="{% url 'notifications:list' %}">View All</a></li>
+            </ul>
           </li>
           <li class="nav-item">
             <a class="nav-link position-relative" href="{% url 'orders:cart' %}">

@@ -39,7 +39,28 @@ def send_message(request, pk):
             body=body,
         )
         conversation.save()
+        from apps.notifications.utils import notify
+        recipient = conversation.store.owner if request.user == conversation.buyer else conversation.buyer
+        sender_name = request.user.get_full_name() or request.user.email
+        notify(
+            recipient=recipient,
+            title=f'New message from {sender_name}',
+            message=body[:100],
+            link=f'/messages/conversation/{conversation.pk}/',
+            notif_type='message',
+        )
     return redirect('messaging:conversation', pk=pk)
+
+
+@login_required
+@require_POST
+def delete_conversation(request, pk):
+    conversation = get_object_or_404(Conversation, pk=pk)
+    if request.user != conversation.buyer and request.user != conversation.store.owner:
+        return redirect('messaging:inbox')
+    conversation.delete()
+    messages.success(request, 'Conversation deleted.')
+    return redirect('messaging:inbox')
 
 
 @login_required

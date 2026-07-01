@@ -86,5 +86,13 @@ def reply_review(request, pk):
         review=review,
         defaults={'author': request.user, 'body': body}
     )
+    from apps.notifications.utils import notify
+    notify(
+        recipient=review.reviewer,
+        title=f'{review.product.store.name} replied to your review',
+        message=body[:100],
+        link=review.product.get_absolute_url(),
+        notif_type='review',
+    )
     messages.success(request, 'Reply posted.')
     return redirect('vendors:store_reviews')

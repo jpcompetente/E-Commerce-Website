@@ -38,21 +38,34 @@
       </div>
 
       <!-- Orders -->
+      {% if request.user == profile_user %}
       <div class="card border-0 shadow-sm p-4 mb-4">
         <h5 class="fw-bold mb-3">📦 Order History</h5>
-        {% if profile_user.order_set.all %}
+        {% if profile_user.orders.all %}
           <ul class="list-group list-group-flush">
-            {% for order in profile_user.order_set.all %}
+            {% for order in profile_user.orders.all|slice:":10" %}
             <li class="list-group-item d-flex justify-content-between align-items-center">
-              <span>Order #{{ order.id }}</span>
-              <span class="badge bg-success">{{ order.status }}</span>
+              <a href="{% url 'orders:order_detail' order.order_number %}" class="text-decoration-none">
+                Order #{{ order.order_number }}
+                <span class="text-muted small d-block">{{ order.created_at|date:"M d, Y" }} &middot; ₱{{ order.total }}</span>
+              </a>
+              <span class="badge
+                {% if order.status == 'delivered' %}bg-success
+                {% elif order.status == 'cancelled' %}bg-danger
+                {% elif order.status == 'shipped' %}bg-info
+                {% elif order.status == 'confirmed' %}bg-primary
+                {% else %}bg-warning text-dark{% endif %}">
+                {{ order.get_status_display }}
+              </span>
             </li>
             {% endfor %}
           </ul>
+          <a href="{% url 'orders:order_list' %}" class="btn btn-outline-primary btn-sm mt-3">View All Orders</a>
         {% else %}
           <p class="text-muted mb-0">No orders yet.</p>
         {% endif %}
       </div>
+      {% endif %}
 
       <!-- Addresses -->
       {% if request.user == profile_user %}

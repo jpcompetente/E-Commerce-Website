@@ -191,6 +191,14 @@ def superadmin_approve_vendor(request, pk):
             'status': 'approved',
         }
     )
+    from apps.notifications.utils import notify
+    notify(
+        recipient=application.user,
+        title='Vendor Application Approved!',
+        message=f'Congratulations! Your store "{application.store_name}" has been approved.',
+        link='/vendors/dashboard/',
+        notif_type='vendor',
+    )
     messages.success(request, f'{application.store_name} approved!')
     return redirect('vendors:superadmin_applications')
 
@@ -201,6 +209,14 @@ def superadmin_reject_vendor(request, pk):
     application = get_object_or_404(VendorApplication, pk=pk)
     application.status = 'rejected'
     application.save()
+    from apps.notifications.utils import notify
+    notify(
+        recipient=application.user,
+        title='Vendor Application Update',
+        message=f'Your application for "{application.store_name}" was not approved.',
+        link='/vendors/apply/',
+        notif_type='vendor',
+    )
     messages.warning(request, f'{application.store_name} rejected.')
     return redirect('vendors:superadmin_applications')
 
@@ -322,6 +338,14 @@ def update_order_status(request, pk):
         elif any(s == 'confirmed' for s in statuses):
             order.status = 'confirmed'
         order.save()
+        from apps.notifications.utils import notify
+        notify(
+            recipient=order.buyer,
+            title=f'Order Update: {sub_order.store.name}',
+            message=f'Your order {order.order_number} is now {sub_order.get_status_display()}.',
+            link=f'/orders/my-orders/{order.order_number}/',
+            notif_type='order',
+        )
         messages.success(request, f'Order #{order.order_number} updated to {new_status}!')
     return redirect('vendors:orders')
 

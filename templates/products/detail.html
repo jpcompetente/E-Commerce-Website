@@ -93,7 +93,7 @@
 
       <!-- Add to Cart -->
       {% if product.is_in_stock %}
-      <form method="post" action="{% url 'orders:add_to_cart' product.pk %}">
+      <form method="post" action="{% if user.is_authenticated %}{% url 'orders:add_to_cart' product.pk %}{% else %}{% url 'account_login' %}{% endif %}">
         {% csrf_token %}
         
         <div class="d-flex gap-3 align-items-center mb-3">
